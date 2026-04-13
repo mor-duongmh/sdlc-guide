@@ -40,7 +40,7 @@ const categories: Category[] = [
 export function SkillMap({ onOpenDetail }: Props) {
   return (
     <section id="skills" className="py-14">
-      <SectionHeader badge="SKILL CATALOG" title="Bản Đồ Skills"
+      <SectionHeader badge="SKILL CATALOG" title="Skills Map"
         desc="14 composable skills theo nhóm. Click vào card để xem steps chi tiết, output format, và examples." />
       <div className="mt-10 space-y-8">
         {categories.map((cat) => (

@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { SectionHeader } from './CorePipeline'
-import { Folder, File, FolderOpen, X, Info, ChevronRight } from 'lucide-react'
+import { Folder, File, FolderOpen, X, Info, ChevronRight, Copy, Check } from 'lucide-react'
+
+type CommandItem = { cmd: string; note?: string }
+type GuideSection = { heading: string; desc?: string; commands?: CommandItem[]; bullets?: string[] }
 
 type ConfigExample = {
   title: string
   desc: string
   color: string
-  code: string
+  code?: string
+  guide?: GuideSection[]
 }
 
 const configExamples: Record<string, ConfigExample> = {
@@ -295,141 +299,78 @@ Thực hiện database migration:
   },
   'model-config': {
     title: 'Model Configuration',
-    desc: 'Cấu hình model mặc định cho Claude Code. Có thể set global hoặc per-project.',
+    desc: 'Cấu hình model mặc định cho Claude Code. Chọn model phù hợp theo task complexity.',
     color: 'border-purple/30',
-    code: `# ===== Cài đặt Model =====
-
-# Cách 1: Set model khi chạy Claude Code
-claude --model claude-opus-4-6          # Dùng Opus (mạnh nhất)
-claude --model claude-sonnet-4-6        # Dùng Sonnet (nhanh + tốt)
-
-# Cách 2: Toggle trong session
-# Gõ /model trong conversation để chuyển model
-# Gõ /fast để toggle fast mode (cùng model, output nhanh hơn)
-
-# ===== Model nào dùng khi nào? =====
-
-# claude-opus-4-6 (Opus)
-# → Architecture decisions, complex debugging
-# → Code review cần judgment cao
-# → Brainstorming, viết spec/plan phức tạp
-# → Cost cao hơn nhưng quality tốt nhất
-
-# claude-sonnet-4-6 (Sonnet)
-# → Day-to-day coding, implement features
-# → Simple bug fixes, refactoring
-# → Nhanh hơn Opus, cost thấp hơn
-# → Đủ cho hầu hết development tasks
-
-# claude-haiku-4-5 (Haiku)
-# → Subagent tasks đơn giản (1-2 files)
-# → Mechanical changes, rename, format
-# → Nhanh nhất, cost thấp nhất
-
-# ===== Trong SDD: chọn model theo task =====
-# Controller chọn model khi dispatch subagent:
-# - Cheap (haiku): task 1-2 files, mechanical
-# - Standard (sonnet): multi-file, integration
-# - Capable (opus): architecture, complex review`,
+    guide: [
+      { heading: 'Set model khi chạy', commands: [
+        { cmd: 'claude --model claude-opus-4-6', note: 'Dùng Opus (mạnh nhất)' },
+        { cmd: 'claude --model claude-sonnet-4-6', note: 'Dùng Sonnet (nhanh + tốt)' },
+      ]},
+      { heading: 'Toggle trong session', bullets: [
+        'Gõ /model trong conversation để chuyển model',
+        'Gõ /fast để toggle fast mode (cùng model, output nhanh hơn)',
+      ]},
+      { heading: 'Opus — Khi nào dùng?', desc: 'Cost cao nhưng quality tốt nhất', bullets: [
+        'Architecture decisions, complex debugging',
+        'Code review cần judgment cao',
+        'Brainstorming, viết spec/plan phức tạp',
+      ]},
+      { heading: 'Sonnet — Khi nào dùng?', desc: 'Nhanh, cost hợp lý — đủ cho hầu hết tasks', bullets: [
+        'Day-to-day coding, implement features',
+        'Simple bug fixes, refactoring',
+      ]},
+      { heading: 'Haiku — Khi nào dùng?', desc: 'Nhanh nhất, cost thấp nhất', bullets: [
+        'Subagent tasks đơn giản (1-2 files)',
+        'Mechanical changes, rename, format',
+      ]},
+      { heading: 'Trong SDD workflow', desc: 'Controller chọn model khi dispatch subagent:', bullets: [
+        'Cheap (haiku): task 1-2 files, mechanical',
+        'Standard (sonnet): multi-file, integration',
+        'Capable (opus): architecture, complex review',
+      ]},
+    ],
   },
   'superpowers-install': {
     title: 'Superpowers Installation',
-    desc: 'Cài đặt Superpowers plugin — bộ skills cho SDLC workflow. Hỗ trợ nhiều platform và OS.',
+    desc: 'Cài đặt Superpowers plugin — bộ skills cho SDLC workflow.',
     color: 'border-primary/30',
-    code: `# ╔══════════════════════════════════════════════╗
-# ║         INSTALL SUPERPOWERS PLUGIN            ║
-# ╚══════════════════════════════════════════════╝
-
-# ===== Bước 0: Cài đặt Claude Code =====
-
-# macOS (Homebrew)
-brew install claude-code
-
-# macOS / Linux (npm)
-npm install -g @anthropic-ai/claude-code
-
-# Windows (npm — cần Node.js 18+)
-npm install -g @anthropic-ai/claude-code
-
-# Verify Claude Code đã cài:
-claude --version
-
-# Đăng nhập lần đầu:
-claude login                    # Mở browser OAuth
-claude login --api-key          # Hoặc dùng API key
-
-# ===== Bước 1: Install Superpowers =====
-
-# Cách 1: Trong Claude Code session (RECOMMENDED)
-# Mở terminal, chạy \`claude\`, rồi gõ:
-/install superpowers
-
-# Cách 2: CLI command
-claude plugin install superpowers@claude-plugins-official
-
-# Cách 3: Cho Cursor IDE
-# Superpowers tự detect Cursor, skills load qua .cursorrules
-
-# Cách 4: Cho GitHub Copilot CLI
-# Copy skills/ folder vào ~/.copilot/skills/superpowers/
-
-# Cách 5: Cho Codex (OpenAI)
-git clone https://github.com/claude-plugins-official/superpowers \\
-  ~/.codex/superpowers
-# Symlink: ln -s ~/.codex/superpowers/skills ~/.agents/skills/superpowers
-
-# Cách 6: Cho OpenCode
-# Thêm vào opencode.json:
-# { "plugins": ["superpowers@claude-plugins-official"] }
-
-# Cách 7: Cho Gemini CLI
-# Copy GEMINI.md vào project root, skills load tự động
-
-# ===== Bước 2: Verify Installation =====
-
-/skills                         # List tất cả skills
-# Phải thấy: brainstorming, writing-plans, test-driven-development,
-#            subagent-driven-development, systematic-debugging, ...
-
-# ===== 14 Skills sau khi install =====
-#
-# Process:        brainstorming, systematic-debugging
-# Implementation: writing-plans, test-driven-development,
-#                 subagent-driven-development, executing-plans
-# Quality:        requesting-code-review, receiving-code-review,
-#                 verification-before-completion
-# Infrastructure: using-git-worktrees, finishing-a-development-branch,
-#                 dispatching-parallel-agents
-# Meta:           using-superpowers, writing-skills
-
-# ===== Cách dùng =====
-# Skills TỰ ĐỘNG activate khi context phù hợp.
-# VD: "implement feature X"
-#     → using-superpowers detect
-#     → invoke brainstorming → tạo spec
-#     → invoke writing-plans → tạo plan
-#     → invoke SDD → execute tasks
-
-# ===== Setup thứ tự khuyến nghị =====
-# 1. Cài Claude Code (brew/npm)
-# 2. claude login
-# 3. /install superpowers
-# 4. Tạo CLAUDE.md cho project (tech stack, conventions)
-# 5. Tạo .claude/settings.json (hooks)
-# 6. Bắt đầu brainstorming cho feature đầu tiên
-
-# ===== Update / Uninstall =====
-claude plugin update superpowers
-claude plugin uninstall superpowers
-
-# ===== Troubleshooting =====
-# Skills không load?
-#   → Chạy \`/skills\` verify
-#   → Restart Claude Code session
-#   → Re-install: claude plugin install superpowers@claude-plugins-official
-#
-# Windows: dùng Git Bash hoặc WSL cho hooks
-# Hooks không chạy? → Check .claude/settings.json syntax`,
+    guide: [
+      { heading: 'Bước 0: Cài đặt Claude Code', commands: [
+        { cmd: 'brew install claude-code', note: 'macOS (Homebrew)' },
+        { cmd: 'npm install -g @anthropic-ai/claude-code', note: 'macOS / Linux / Windows (npm)' },
+        { cmd: 'claude --version', note: 'Verify đã cài' },
+        { cmd: 'claude login', note: 'Đăng nhập (mở browser OAuth)' },
+        { cmd: 'claude login --api-key', note: 'Hoặc dùng API key' },
+      ]},
+      { heading: 'Bước 1: Install Superpowers', commands: [
+        { cmd: '/install superpowers', note: 'Trong Claude Code session (recommended)' },
+        { cmd: 'claude plugin install superpowers@claude-plugins-official', note: 'CLI command' },
+      ], bullets: [
+        'Cursor IDE: Superpowers tự detect, load qua .cursorrules',
+        'Copilot CLI: copy skills/ vào ~/.copilot/skills/superpowers/',
+        'Gemini CLI: copy GEMINI.md vào project root',
+      ]},
+      { heading: 'Bước 2: Verify', commands: [
+        { cmd: '/skills', note: 'List tất cả skills đã install' },
+      ], bullets: [
+        'Phải thấy: brainstorming, writing-plans, test-driven-development, subagent-driven-development, systematic-debugging, ...',
+      ]},
+      { heading: 'Setup thứ tự khuyến nghị', bullets: [
+        '1. Cài Claude Code (brew/npm)',
+        '2. claude login',
+        '3. /install superpowers',
+        '4. Tạo CLAUDE.md cho project',
+        '5. Tạo .claude/settings.json (hooks)',
+        '6. Bắt đầu brainstorming cho feature đầu tiên',
+      ]},
+      { heading: 'Update / Troubleshooting', commands: [
+        { cmd: 'claude plugin update superpowers', note: 'Update lên version mới' },
+        { cmd: 'claude plugin uninstall superpowers', note: 'Gỡ cài đặt' },
+      ], bullets: [
+        'Skills không load? → Chạy /skills verify → Restart session → Re-install',
+        'Windows: dùng Git Bash hoặc WSL cho hooks',
+      ]},
+    ],
   },
   '.worktrees/': {
     title: '.worktrees/',
@@ -550,6 +491,103 @@ function TreeItem({ node, depth = 0, onSelect }: { node: TreeNode; depth?: numbe
   )
 }
 
+function isCommand(line: string): boolean {
+  const trimmed = line.trim()
+  if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('//') || trimmed.startsWith('{') || trimmed.startsWith('}') || trimmed.startsWith('"') || trimmed.startsWith('│') || trimmed.startsWith('├') || trimmed.startsWith('└') || trimmed.startsWith('|')) return false
+  return /^(brew |npm |npx |claude |git |\/install|\/skills|echo |curl )/.test(trimmed)
+}
+
+function CommandLine({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text.trim())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [text])
+
+  return (
+    <div
+      onClick={copy}
+      className={`flex items-center gap-2 -mx-2 px-3 py-1 rounded-xl cursor-pointer transition-all duration-150 ${
+        copied ? 'bg-primary/15' : 'hover:bg-primary/8'
+      }`}
+    >
+      <code className="text-[11px] leading-relaxed font-mono whitespace-pre flex-1 text-text">{text}</code>
+      <span className="shrink-0">
+        {copied
+          ? <Check className="w-3.5 h-3.5 text-primary" />
+          : <Copy className="w-3.5 h-3.5 text-text-dim" />
+        }
+      </span>
+    </div>
+  )
+}
+
+function CodeWithCopy({ code }: { code: string }) {
+  const lines = code.split('\n')
+  return (
+    <div className="px-6 py-4 space-y-0">
+      {lines.map((line, i) => {
+        const cmd = isCommand(line)
+        return cmd ? (
+          <CommandLine key={i} text={line} />
+        ) : (
+          <div key={i}>
+            <code className="text-[11px] leading-relaxed font-mono whitespace-pre text-text-muted">{line || '\u00A0'}</code>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function CopyCmd({ cmd, note }: CommandItem) {
+  const [copied, setCopied] = useState(false)
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(cmd)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [cmd])
+
+  return (
+    <div onClick={copy}
+      className={`flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 ${copied ? 'bg-primary/15' : 'bg-surface-2 hover:bg-primary/8'}`}>
+      <code className="text-[11px] font-mono font-bold text-text flex-1">{cmd}</code>
+      {note && <span className="text-[10px] text-text-dim hidden sm:block shrink-0">{note}</span>}
+      <span className="shrink-0">
+        {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-text-dim" />}
+      </span>
+    </div>
+  )
+}
+
+function GuideContent({ guide }: { guide: GuideSection[] }) {
+  return (
+    <div className="px-6 py-5 space-y-6">
+      {guide.map((section, i) => (
+        <div key={i}>
+          <h3 className="text-xs font-bold text-text font-heading mb-1">{section.heading}</h3>
+          {section.desc && <p className="text-[11px] text-text-muted mb-2">{section.desc}</p>}
+          {section.commands && (
+            <div className="space-y-1.5 mb-2">
+              {section.commands.map((c, j) => <CopyCmd key={j} {...c} />)}
+            </div>
+          )}
+          {section.bullets && (
+            <ul className="space-y-1 mt-1">
+              {section.bullets.map((b, j) => (
+                <li key={j} className="text-[11px] text-text-muted flex items-start gap-2">
+                  <span className="mt-1.5 w-1 h-1 rounded-full bg-text-dim shrink-0" />{b}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ConfigModal({ example, onClose }: { example: ConfigExample | null; onClose: () => void }) {
   if (!example) return null
 
@@ -561,22 +599,23 @@ function ConfigModal({ example, onClose }: { example: ConfigExample | null; onCl
         style={{ animationFillMode: 'both', maxHeight: 'calc(100vh - 48px)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sticky Header */}
         <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-5 border-b border-border">
           <div className="min-w-0">
-            <span className="text-[10px] font-bold tracking-[0.15em] text-indigo uppercase">Config Example</span>
-            <h2 className="text-lg sm:text-xl font-bold text-text mt-0.5 font-mono font-heading">{example.title}</h2>
+            <span className="text-[10px] font-bold tracking-[0.15em] text-indigo uppercase">Config</span>
+            <h2 className="text-lg sm:text-xl font-bold text-text mt-0.5 font-heading">{example.title}</h2>
             <p className="text-xs text-text-muted mt-1 leading-relaxed">{example.desc}</p>
           </div>
           <button onClick={onClose} className="shrink-0 w-8 h-8 rounded-xl bg-surface-2 flex items-center justify-center text-text-dim hover:text-text cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
-        {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto modal-scroll">
-          <pre className="px-6 py-5 overflow-x-auto">
-            <code className="text-[11px] leading-relaxed font-mono text-text-muted whitespace-pre">{example.code}</code>
-          </pre>
+          {example.guide
+            ? <GuideContent guide={example.guide} />
+            : example.code
+              ? <CodeWithCopy code={example.code} />
+              : null
+          }
         </div>
       </div>
     </div>

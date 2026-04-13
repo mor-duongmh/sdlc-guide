@@ -28,7 +28,7 @@ export function DebuggingPipeline({ onOpenDetail }: Props) {
   return (
     <section id="debug" className="py-14">
       <SectionHeader badge="DEBUGGING" title="Systematic Debug 4 Phase"
-        desc="Iron Law: KHÔNG FIX KHI CHƯA TÌM RA ROOT CAUSE. Hoàn thành mỗi phase trước." />
+        desc="Nguyên tắc: KHÔNG FIX KHI CHƯA TÌM RA ROOT CAUSE. Hoàn thành mỗi phase trước." />
 
       <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
         {phases.map((p) => (
@@ -86,11 +86,31 @@ export function DebuggingPipeline({ onOpenDetail }: Props) {
       </div>
 
       <div className="mt-8 card p-5">
-        <h3 className="text-xs font-bold text-text-dim uppercase tracking-widest mb-3 font-heading">Pressure Resistance</h3>
-        <p className="text-[11px] text-text-muted mb-3">Skill systematic-debugging rèn khả năng chống lại:</p>
-        <div className="flex flex-wrap gap-2">
-          {['Time pressure ($15k/min)','Sunk cost (debug 4 tiếng)','Authority ("fix nhanh đi")','Economic pressure','Kiệt sức','Social conformity','Pragmatic shortcuts'].map((p) => (
-            <span key={p} className="text-[10px] px-3 py-1.5 rounded-xl bg-surface-2 text-text-muted font-medium">{p}</span>
+        <h3 className="text-xs font-bold text-text-dim uppercase tracking-widest mb-3 font-heading">Pressure Resistance — Khả Năng Chống Áp Lực</h3>
+        <div className="rounded-xl card-inset p-4 mb-4">
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            <span className="font-bold text-text">Tại sao cần phần này?</span> Trong thực tế, dev thường bị áp lực bỏ qua quy trình debug đúng cách:
+            senior bảo "fix nhanh đi", deadline gấp, đã debug 4 tiếng rồi muốn thử bừa... Superpowers bao gồm
+            <span className="font-bold text-text"> pressure tests</span> — các kịch bản mô phỏng áp lực thực tế để rèn cho AI (và dev) khả năng
+            giữ vững systematic process dù có áp lực. Mục tiêu: không bao giờ skip root cause investigation
+            chỉ vì "gấp quá".
+          </p>
+        </div>
+        <p className="text-[11px] text-text-muted mb-3 font-bold">Các loại áp lực được rèn luyện:</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {[
+            { tag: 'Time pressure', desc: 'System down, mất $15k/phút — vẫn phải investigate root cause' },
+            { tag: 'Sunk cost', desc: 'Đã debug 4 tiếng — không được "thử bừa" vì mệt' },
+            { tag: 'Authority', desc: 'Senior/lead bảo "fix nhanh đi" — vẫn giữ process' },
+            { tag: 'Economic', desc: 'Client đang chờ, hợp đồng sắp hết hạn — không skip steps' },
+            { tag: 'Kiệt sức', desc: 'Cuối ngày, muốn về — không commit code chưa verify' },
+            { tag: 'Social conformity', desc: 'Team ai cũng hotfix bừa — bạn vẫn theo process' },
+            { tag: 'Pragmatic shortcuts', desc: '"Thêm timeout 5s là xong" — không, phải tìm root cause' },
+          ].map((p) => (
+            <div key={p.tag} className="flex items-start gap-2 rounded-xl bg-surface-2 px-3 py-2">
+              <span className="text-[10px] font-bold text-text shrink-0 mt-0.5">{p.tag}</span>
+              <span className="text-[10px] text-text-muted">{p.desc}</span>
+            </div>
           ))}
         </div>
       </div>

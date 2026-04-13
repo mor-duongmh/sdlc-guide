@@ -3,8 +3,8 @@ import { SectionHeader } from './CorePipeline'
 
 const principles = [
   { icon: FlaskConical, title: 'Test-Driven Development', desc: 'Không viết code production khi chưa có failing test trước', color: 'bg-red/10', iconColor: 'text-red' },
-  { icon: Layers, title: 'Có Hệ Thống, Không Ad-hoc', desc: 'Đi theo process, không dựa vào bản năng hay kinh nghiệm', color: 'bg-indigo/10', iconColor: 'text-indigo' },
-  { icon: Shield, title: 'Giảm Complexity', desc: 'YAGNI, DRY, mỗi task chỉ 2-5 phút', color: 'bg-emerald/10', iconColor: 'text-emerald' },
+  { icon: Layers, title: 'Có Hệ Thống, Không Tuỳ Hứng', desc: 'Đi theo process, không dựa vào bản năng hay kinh nghiệm', color: 'bg-indigo/10', iconColor: 'text-indigo' },
+  { icon: Shield, title: 'Giảm Complexity', desc: 'YAGNI (không build cái chưa cần), DRY (không lặp logic), mỗi task chỉ 2-5 phút', color: 'bg-emerald/10', iconColor: 'text-emerald' },
   { icon: FileCheck, title: 'Evidence > Claims', desc: 'Chạy command, đọc output, rồi mới claim kết quả', color: 'bg-amber/10', iconColor: 'text-amber' },
 ]
 
